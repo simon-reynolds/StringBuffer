@@ -1,0 +1,57 @@
+name: Build master
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup necessary dotnet SDKs
+        uses: actions/setup-dotnet@v3
+        with:
+          global-json-file: global.json
+          dotnet-version: |
+            6.x
+            7.x
+
+      - name: Build via Bash
+        if: runner.os != 'Windows'
+        run: |
+          chmod +x ./build.sh
+          ./build.sh
+        env:
+          CI: true
+          CONFIGURATION: ${{ matrix.configuration }}
+          ENABLE_COVERAGE: true
+      - name: Build via Windows
+        if: runner.os == 'Windows'
+        run: ./build.cmd
+        env:
+          CI: true
+          CONFIGURATION: ${{ matrix.configuration }}
+          ENABLE_COVERAGE: true
+  # Builds the project in a dev container
+  build-devcontainer:
+    runs-on: ubuntu-latest
+    steps:
+
+      - uses: actions/checkout@v3
+
+      - name: Build and run dev container task
+        uses: devcontainers/ci@v0.3
+        with:
+          runCmd: |
+            chmod +x ./build.sh
+            ./build.sh
