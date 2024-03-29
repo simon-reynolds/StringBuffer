@@ -8,7 +8,7 @@
 
 GitHub Actions |
 :---: |
-[![GitHub Actions](https://github.com/simon-reynolds/StringBuffer/workflows/Build%20main/badge.svg)](https://github.com/simon-reynolds/StringBuffer/actions?query=branch%3Amain) |
+[![Build master](https://github.com/simon-reynolds/StringBuffer/actions/workflows/build.yml/badge.svg)](https://github.com/simon-reynolds/StringBuffer/actions/workflows/build.yml)
 [![Build History](https://buildstats.info/github/chart/simon-reynolds/StringBuffer)](https://github.com/simon-reynolds/StringBuffer/actions?query=branch%3Amain) |
 
 ## NuGet
