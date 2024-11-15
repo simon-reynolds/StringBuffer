@@ -73,24 +73,24 @@ module Tests =
 
                 let s: FormattableString = $"Test"
 
-                let subect = IndentedStringBuilder().Append(s).ToString()
+                let subject = IndentedStringBuilder().Append(s).ToString()
 
                 let expected = "Test"
 
-                Expect.equal subect expected "Works as expected"
+                Expect.equal subject expected "Works as expected"
 
             testCase "AppendLine - FormattableString works as expected"
             <| fun _ ->
 
                 let s: FormattableString = $"Test"
 
-                let subect = IndentedStringBuilder().AppendLine(s).ToString()
+                let subject = IndentedStringBuilder().AppendLine(s).ToString()
 
                 let expected =
                     "Test"
                     + Environment.NewLine
 
-                Expect.equal subect expected "Works as expected"
+                Expect.equal subject expected "Works as expected"
 
             testCase "Append - String seq works as expected"
             <| fun _ ->
@@ -101,11 +101,11 @@ module Tests =
                         "Line 2"
                     }
 
-                let subect = IndentedStringBuilder().Append(s).ToString()
+                let subject = IndentedStringBuilder().Append(s).ToString()
 
                 let expected = "Line 1Line 2"
 
-                Expect.equal subect expected "Works as expected"
+                Expect.equal subject expected "Works as expected"
 
             testCase "Append - Char seq works as expected"
             <| fun _ ->
@@ -116,11 +116,11 @@ module Tests =
                         'b'
                     }
 
-                let subect = IndentedStringBuilder().Append(s).ToString()
+                let subject = IndentedStringBuilder().Append(s).ToString()
 
                 let expected = "ab"
 
-                Expect.equal subect expected "Works as expected"
+                Expect.equal subject expected "Works as expected"
 
             testCase "AppendLines - String seq works as expected"
             <| fun _ ->
@@ -131,7 +131,7 @@ module Tests =
                         "Line 2"
                     }
 
-                let subect = IndentedStringBuilder().AppendLines(s).ToString()
+                let subject = IndentedStringBuilder().AppendLines(s).ToString()
 
                 let expected =
                     "Line 1"
@@ -139,7 +139,7 @@ module Tests =
                     + "Line 2"
                     + Environment.NewLine
 
-                Expect.equal subect expected "Works as expected"
+                Expect.equal subject expected "Works as expected"
 
             testCase "AppendLines - Char seq works as expected"
             <| fun _ ->
@@ -150,7 +150,7 @@ module Tests =
                         'b'
                     }
 
-                let subect = IndentedStringBuilder().AppendLines(s).ToString()
+                let subject = IndentedStringBuilder().AppendLines(s).ToString()
 
                 let expected =
                     "a"
@@ -158,7 +158,7 @@ module Tests =
                     + "b"
                     + Environment.NewLine
 
-                Expect.equal subect expected "Works as expected"
+                Expect.equal subject expected "Works as expected"
 
             testCase "AppendLines - skipFinalNewLine works as expected"
             <| fun _ ->
@@ -173,7 +173,7 @@ module Tests =
                     + "c"
 
 
-                let subect = IndentedStringBuilder().AppendLines(initial, false).ToString()
+                let subject = IndentedStringBuilder().AppendLines(initial, false).ToString()
 
                 let expected =
                     "a"
@@ -185,9 +185,9 @@ module Tests =
                     + "c"
                     + Environment.NewLine
 
-                Expect.equal subect expected "Works as expected"
+                Expect.equal subject expected "Works as expected"
 
-                let subect = IndentedStringBuilder().AppendLines(initial, true).ToString()
+                let subject = IndentedStringBuilder().AppendLines(initial, true).ToString()
 
                 let expected =
                     "a"
@@ -198,7 +198,7 @@ module Tests =
                     + Environment.NewLine
                     + "c"
 
-                Expect.equal subect expected "Works as expected"
+                Expect.equal subject expected "Works as expected"
 
             testCase "AppendJoin - String seq works as expected"
             <| fun _ ->
@@ -430,7 +430,7 @@ module Tests =
                 let subject =
                     stringBuffer {
                         for i in s do
-                            sprintf "Line %d" i
+                            $"Line %d{i}"
                     }
 
                 let expected =
@@ -445,14 +445,13 @@ module Tests =
 
             testCase "While works as expected"
             <| fun _ ->
-                let s = seq { 1..3 }
 
                 let subject =
                     stringBuffer {
                         let mutable i = 0
 
                         while i < 3 do
-                            sprintf "Line %d" i
+                            $"Line %d{i}"
                             i <- i + 1
                     }
 
@@ -513,6 +512,34 @@ module Tests =
                     "Line 1 mapped"
                     + Environment.NewLine
                     + "Line 2 mapped"
+                    + Environment.NewLine
+
+                Expect.equal subject expected "Works as expected"
+
+            testCase "Using string seq in indent works as expected"
+            <| fun _ ->
+                let lines =
+                    seq {
+                        1
+                        2
+                    }
+
+                let subject =
+                    stringBuffer {
+                        "root"
+
+                        indent {
+                            lines
+                            |> Seq.map (fun l -> $"Line {l}")
+                        }
+                    }
+
+                let expected =
+                    "root"
+                    + Environment.NewLine
+                    + "    Line 1"
+                    + Environment.NewLine
+                    + "    Line 2"
                     + Environment.NewLine
 
                 Expect.equal subject expected "Works as expected"

@@ -257,42 +257,40 @@ let writeNamespaces (namespaces: string seq) =
 
 type StringBufferBuilder() =
 
-    member __.Yield(txt: string) =
+    member _.Yield(txt: string) =
         fun (b: IndentedStringBuilder) ->
             Printf.kprintf
                 (b.AppendLines
                  >> ignore)
-                "%s"
-                txt
+                $"%s{txt}"
 
-    member __.Yield(c: char) =
+    member _.Yield(c: char) =
         fun (b: IndentedStringBuilder) ->
             Printf.kprintf
                 (b.AppendLine
                  >> ignore)
-                "%c"
-                c
+                $"%c{c}"
 
-    member __.YieldFrom(f: StringBuffer) = f
+    member _.YieldFrom(f: StringBuffer) = f
 
-    member __.Combine(f, g) =
+    member _.Combine(f, g) =
         fun (b: IndentedStringBuilder) ->
             f b
             g b
 
-    member __.Delay f =
+    member _.Delay f =
         fun (b: IndentedStringBuilder) -> (f ()) b
 
-    member __.Zero() = ignore
+    member _.Zero() = fun (_: IndentedStringBuilder) -> ()
 
-    member __.For(xs: 'a seq, f: 'a -> StringBuffer) =
+    member _.For(xs: 'a seq, f: 'a -> StringBuffer) =
         fun (b: IndentedStringBuilder) ->
             use e = xs.GetEnumerator()
 
             while e.MoveNext() do
                 (f e.Current) b
 
-    member __.While(p: unit -> bool, f: StringBuffer) =
+    member _.While(p: unit -> bool, f: StringBuffer) =
         fun (b: IndentedStringBuilder) ->
             while p () do
                 f b
@@ -307,8 +305,7 @@ type StringBufferBuilder() =
                 Printf.kprintf
                     (b.AppendLines
                      >> ignore)
-                    "%s"
-                    txt
+                    $"%s{txt}"
             )
 
     member _.Yield(lines: char seq) =
@@ -318,22 +315,20 @@ type StringBufferBuilder() =
                 Printf.kprintf
                     (b.AppendLines
                      >> ignore)
-                    "%c"
-                    txt
+                    $"%c{txt}"
             )
 
-    member __.Yield(txt: string option) =
+    member _.Yield(txt: string option) =
         fun (b: IndentedStringBuilder) ->
             match txt with
             | Some t ->
                 Printf.kprintf
                     (b.AppendLines
                      >> ignore)
-                    "%s"
-                    t
+                    $"%s{t}"
             | None -> ()
 
-    member __.Yield(txt: string option seq) =
+    member _.Yield(txt: string option seq) =
         fun (b: IndentedStringBuilder) ->
             for tt in txt do
                 match tt with
@@ -341,15 +336,38 @@ type StringBufferBuilder() =
                     Printf.kprintf
                         (b.AppendLines
                          >> ignore)
-                        "%s"
-                        t
+                        $"%s{t}"
                 | None -> ()
 
 
 type IndentStringBufferBuilder() =
     inherit StringBufferBuilder()
 
+    member _.Yield(txt: string) = base.Yield(txt)
+
+    member _.Yield(c: char) = base.Yield(c)
+
+    member _.YieldFrom(f: StringBuffer) = base.YieldFrom(f)
+
+    member _.Combine(f, g) = base.Combine(f, g)
+
+    member _.Delay f = base.Delay f
+
+    member _.Zero() = base.Zero()
+
+    member _.For(xs: 'a seq, f: 'a -> StringBuffer) = base.For(xs, f)
+
+    member _.While(p: unit -> bool, f: StringBuffer) = base.While(p, f)
+
+    member _.Yield(lines: string seq) = base.Yield(lines)
+
+    member _.Yield(lines: char seq) = base.Yield(lines)
+
+    member _.Yield(txt: string option) = base.Yield(txt)
+
+    member _.Yield(txt: string option seq) = base.Yield(txt)
+
     override _.Run(f: StringBuffer) = writeStringBuffer f Indent
 
-let stringBuffer = new StringBufferBuilder()
-let indent = new IndentStringBufferBuilder()
+let stringBuffer = StringBufferBuilder()
+let indent = IndentStringBufferBuilder()
